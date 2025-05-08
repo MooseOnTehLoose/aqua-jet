@@ -6,6 +6,6 @@ Find out more about SpectroCloud Edge here:
 https://docs.spectrocloud.com/clusters/edge/
 
 
-##Usage
+## Usage
 
 ./aqua-jet.sh 

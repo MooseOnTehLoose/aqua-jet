@@ -84,7 +84,8 @@ if [[ "$k8s_version" == "" ]]; then
 fi
 
 
-read -p "Name for the ISO in /build directory:
+read -p "ISO Name, Leave blank to use: 
+"$custom_tag-edge:$canvos-$os:$os_version-$k8s_distribution:$k8s_version.iso"
   " iso_name
 if [[ "$iso_name" == "" ]]; then
   iso_name="$custom_tag-edge:$canvos-$os:$os_version-$k8s_distribution:$k8s_version"
@@ -177,8 +178,70 @@ read -p "Ready to build ISO? (y/n)
 if [[ "$confirm" == "y" ]]; then
   #use the latest available
   ./earthly.sh +iso
+
 elif [[ "$confirm" == "n" || "$confirm" == "" ]]; then
   echo "Build ISO with ./earthly.sh +iso"
 else
   echo "Invalid input."
 fi
+
+
+
+
+byos_template='pack:
+  content:
+    images:
+      - image: "{{.spectro.pack.edge-native-byoi.options.system.uri}}"
+  # Below config is default value, please uncomment if you want to modify default values
+  #drain:
+    #cordon: true
+    #timeout: 60 # The length of time to wait before giving up, zero means infinite
+    #gracePeriod: 60 # Period of time in seconds given to each pod to terminate gracefully. If negative, the default value specified in the pod will be used
+    #ignoreDaemonSets: true
+    #deleteLocalData: true # Continue even if there are pods using emptyDir (local data that will be deleted when the node is drained)
+    #force: true # Continue even if there are pods that do not declare a controller
+    #disableEviction: false # Force drain to use delete, even if eviction is supported. This will bypass checking PodDisruptionBudgets, use with caution
+    #skipWaitForDeleteTimeout: 60 # If pod DeletionTimestamp older than N seconds, skip waiting for the pod. Seconds must be greater than 0 to skip.
+options:
+  system.uri: "{{ .spectro.pack.edge-native-byoi.options.system.registry }}/{{ .spectro.pack.edge-native-byoi.options.system.repo }}:{{ .spectro.pack.edge-native-byoi.options.system.k8sDistribution }}-{{ .spectro.system.kubernetes.version }}-{{ .spectro.pack.edge-native-byoi.options.system.peVersion }}-{{ .spectro.pack.edge-native-byoi.options.system.customTag }}"
+
+'
+byos_data="
+  system.registry: ${image_registry} 
+  system.repo: ${image_repo}
+  system.k8sDistribution: ${k8s_distribution}
+  system.osName: ${os}
+  system.peVersion: ${canvos}
+  system.customTag: ${custom_tag}
+  system.osVersion: ${os_version}"
+
+echo "${byos_template} ${byos_data}" > "${custom_tag}-provider.yaml"
+
+
+
+# Prompt for Provider Image Build
+read -p "Ready to build Provider Image? (y/n)
+  " confirm
+
+# Check the response
+if [[ "$confirm" == "y" ]]; then
+
+  #Build the Provider image
+  ./earthly.sh +build-provider-images
+
+  echo "Pushing Provider image to Docker Registry:
+  docker push ${image_registry}/${os}:${k8s_distribution}-${k8s_version}-${canvos}-${custom_tag}"
+
+  docker push ${image_registry}/${os}:${k8s_distribution}-${k8s_version}-${canvos}-${custom_tag}
+
+
+elif [[ "$confirm" == "n" || "$confirm" == "" ]]; then
+  echo "Build Provider Image with ./earthly.sh +build-provider-images"
+  echo "Push Provider Image with:
+  docker push ${image_registry}/${os}:${k8s_distribution}-${k8s_version}-${canvos}-${custom_tag}
+  "
+else
+  echo "Invalid input."
+fi
+
+

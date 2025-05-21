@@ -71,7 +71,7 @@ echo "Possible versions for $k8s_distribution:
 json=$(jq -c ".${k8s_distribution}[]"  ./k8s_version.json)
 json_without_quotes=$(echo ${json//\"/""})
 IFS=$' ' read -r -d '' -a array <<< "$json_without_quotes"
-latest_k8s=${array[-1]}
+latest_k8s=$(echo ${array[-1]} | tr -d '\n')
 
 printf "%s\n" ${json_without_quotes}  
 
@@ -85,10 +85,14 @@ fi
 
 
 read -p "ISO Name, Leave blank to use: 
-"$custom_tag-edge:$canvos-$os:$os_version-$k8s_distribution:$k8s_version.iso"
+  $custom_tag-edge:$canvos-$os:$os_version-$k8s_distribution:$k8s_version.iso
   " iso_name
+
 if [[ "$iso_name" == "" ]]; then
   iso_name="$custom_tag-edge:$canvos-$os:$os_version-$k8s_distribution:$k8s_version"
+  echo "Image Name set as: 
+  $iso_name.iso
+  "
 fi
 
 
@@ -119,7 +123,9 @@ ARCH=amd64
 ${base_image}
 UPDATE_KERNEL=${kernel}"
 
-echo "arg file looks like: 
+echo "
+arg file looks like:
+ 
 $arg
 
 "

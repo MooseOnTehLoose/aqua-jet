@@ -99,7 +99,7 @@ fi
 base_image=""
 if [[ "$os" == "slem" ]]; then
   read -p "Base Image for SLEM/SLES
-  Default if no input: docker.io/3pings/sles-m:v5.4-v21
+  Default if no input: docker.io/3pings/sles-m:v5.4-v22
   " base_image
 fi
 

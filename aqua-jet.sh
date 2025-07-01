@@ -1,5 +1,11 @@
 #! /bin/bash
 
+#Version 0.0.4
+#Added OSBUILDER_VERSION=${bootdisk} to handle GPT vs MBR boot issues from USB ISO
+#
+#Use v0.300.3 for MBR
+#Use v0.300.4 for GPT
+#Default to MBR
 
 git clone https://github.com/spectrocloud/CanvOS.git
 cd CanvOS
@@ -30,6 +36,24 @@ read -p "Enter a custom tag for this build:
 if [[ "$custom_tag" == "" ]]; then
   custom_tag="palette"
 fi
+
+read -p "Use GPT USB ISO Boot Workaround? (y/n) - Will cause some machines to fail boot!
+  " confirm
+
+# Check the response
+if [[ "$confirm" == "y" ]]; then
+  #use the GPT Boot Workaround
+  bootdisk="v0.300.4"
+elif [[ "$confirm" == "n" || "$confirm" == "" ]]; then
+  #use the MBR Boot Configuration
+  bootdisk="v0.300.3"
+else
+  echo "Invalid input."
+fi
+
+echo "
+Setting OSBUILDER_VERSION=${bootdisk}
+"
 
 
 read -p "Registry for Provider Image - No HTTP(S):// ! 
@@ -121,7 +145,8 @@ K8S_VERSION=${k8s_version}
 ISO_NAME=${iso_name}
 ARCH=amd64
 ${base_image}
-UPDATE_KERNEL=${kernel}"
+UPDATE_KERNEL=${kernel}
+OSBUILDER_VERSION=${bootdisk}"
 
 echo "
 arg file looks like:

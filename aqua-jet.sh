@@ -8,6 +8,8 @@
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
 
+
+
 echo -e "${lb}
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⡂⣀⣀⠀⠀⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣄⣴⣲⠩⡩⠉⠉⢉⡘⣈⣳⢮⡽⣿⣧⣲⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -40,7 +42,8 @@ echo -e "${lb}
 ⠀⠀⠀⠀⡠⠔⠂⠽⠿⣿⣿⣗⠂⠀⢹⣦⠄⠀⠐⠀⠀⠀⠀⢀⣤⠶⠓⠐⢚⣍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠐⠞⠠⢦⣶⣴⣾⣿⣿⣤⣴⣶⣤⠿⠛⠛⠛⠚⠛⠛⢛⣿⣷⣶⣿⣿⣶⣼⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠈⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡠⠀⠐⡁
-Aqua Jet v0.0.5${nc}"
+Aqua Jet v0.0.6${nc}"
+
 
 echo -e "\e]8;;https://github.com/MooseOnTehLoose/aqua-jet\e\\https://github.com/MooseOnTehLoose/aqua-jet\e]8;;\e\\"
 printf "\n"
@@ -114,14 +117,20 @@ else
   echo -e "Choosing ${lb}${k8s_distribution}${nc}\n"
 fi
 
-echo -e "Possible versions for ${lb}$k8s_distribution${nc}:\n"  
+echo -e "Possible versions for ${lb}$k8s_distribution${nc}:\n"
+
 json=$(jq -c ".${k8s_distribution}[]"  ./k8s_version.json)
 json_without_quotes=$(echo ${json//\"/""})
-IFS=$' ' read -r -d '' -a array <<< "$json_without_quotes"
-latest_k8s=$(echo -e ${array[-1]} | tr -d '\n')
-printf "%s\n" ${json_without_quotes}  | pr -t -8 -s""
+
+latest=$(jq -c ".${k8s_distribution} | last"  ./k8s_version.json )
+latest_k8s=$(echo ${latest//\"/""})
+k8s_array=($json_without_quotes)
+
+
+printf "%s\n" "${k8s_array[@]}" | column -x -c 80
 printf "\n"
 
+echo -e "Latest is " ${lb}${latest_k8s}${nc}"\n"
 
 read -p "K8s Version: " k8s_version
 if [[ "$k8s_version" == "" ]]; then

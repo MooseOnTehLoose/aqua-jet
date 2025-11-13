@@ -5,8 +5,8 @@
 # Added SLEM support
 
 
-lb="\e[94m"
-nc="\e[0m"
+lb='\033[0;94m' # Blue - High Intensity
+nc='\033[0m'    # No Color - resets to default
 
 echo -e "${lb}
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⡂⣀⣀⠀⠀⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀

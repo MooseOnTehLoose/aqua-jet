@@ -1,9 +1,6 @@
 #! /bin/bash
 #
 # Version 0.0.6
-#
-# Added SLEM support
-
 
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
@@ -203,15 +200,6 @@ read -p "Lock Stylus to Build Version? (y/n): " styluslock
 if [[ "$styluslock" == "y" ]]; then
   stylusPackage="stylusPackage: container://us-docker.pkg.dev/palette-images/edge/stylus-linux-amd64:${canvos}"
 fi
-
-read -p "Update Kernel? (y/n): " updatekernel
-if [[ "$updatekernel" == "y" ]]; then
-  kernel="true"
-  echo -e "Updating kernel\n"
-else
-  echo -e "Not updating Kernel\n"
-fi
-
 
 tui="false"
 read -p "Include TUI? (y\n): " textui

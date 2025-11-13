@@ -198,6 +198,8 @@ fi
 stylusPackage=""
 read -p "Lock Stylus to Build Version? (y/n): " styluslock
 if [[ "$styluslock" == "y" ]]; then
+
+  echo -e "Remember to ${lb}Pause Agent Upgrades${nc} via Platform Settings or this does nothing!
   stylusPackage="stylusPackage: container://us-docker.pkg.dev/palette-images/edge/stylus-linux-amd64:${canvos}"
 fi
 

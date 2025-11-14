@@ -195,6 +195,16 @@ if [[ "$paletteendpoint" == "" ]]; then
   paletteendpoint="api.spectrocloud.com"
 fi
 
+
+
+encryptionEnabled=""
+read -p "Encrypt Partitions with LUKS? (y/n): " luks
+if [[ "$luks" == "y" ]]; then
+  encryptionEnabled="  encrypted_partitions:
+  - COS_PERSISTENT
+  - COS_OEM"
+fi
+
 stylusPackage=""
 read -p "Lock Stylus to Build Version? (y/n): " styluslock
 if [[ "$styluslock" == "y" ]]; then
@@ -220,6 +230,8 @@ ${stylusPackage}
 
 install:
   poweroff: true
+${encryptionEnabled}
+  
 
 stages:
   initramfs:

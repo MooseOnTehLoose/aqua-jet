@@ -1,6 +1,8 @@
 #! /bin/bash
 #
-# Version 0.0.6
+# Version 0.0.7
+#
+# Added LUKS Encryption 
 
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default

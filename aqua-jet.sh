@@ -204,7 +204,6 @@ read -p "Encrypt Partitions with LUKS? (y/n): " luks
 if [[ "$luks" == "y" ]]; then
   encryptionEnabled="  encrypted_partitions:
   - COS_PERSISTENT
-  - COS_OEM"
 fi
 
 stylusPackage=""

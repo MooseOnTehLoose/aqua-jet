@@ -1,8 +1,10 @@
 #! /bin/bash
 #
-# Version 0.0.7
 #
 # Added LUKS Encryption 
+
+
+version="v0.0.7"
 
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
@@ -41,7 +43,7 @@ echo -e "${lb}
 ⠀⠀⠀⠀⡠⠔⠂⠽⠿⣿⣿⣗⠂⠀⢹⣦⠄⠀⠐⠀⠀⠀⠀⢀⣤⠶⠓⠐⢚⣍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠐⠞⠠⢦⣶⣴⣾⣿⣿⣤⣴⣶⣤⠿⠛⠛⠛⠚⠛⠛⢛⣿⣷⣶⣿⣿⣶⣼⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠈⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡠⠀⠐⡁
-Aqua Jet v0.0.6${nc}"
+Aqua Jet ${version}${nc}"
 
 
 echo -e "\e]8;;https://github.com/MooseOnTehLoose/aqua-jet\e\\https://github.com/MooseOnTehLoose/aqua-jet\e]8;;\e\\"

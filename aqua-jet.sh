@@ -1,10 +1,10 @@
 #! /bin/bash
 #
 #
-# Added LUKS Encryption 
+# Added Fix for Kairos 3.5.7 bug with LUKS - Fixed in Kairos 3.5.8
 
 
-version="v0.0.7"
+version="v0.0.8"
 
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
@@ -202,11 +202,37 @@ fi
 
 
 encryptionEnabled=""
+luksHotfix=""
 read -p "Encrypt Partitions with LUKS? (y/n): " luks
 if [[ "$luks" == "y" ]]; then
   encryptionEnabled="  encrypted_partitions:
-  - COS_PERSISTENT
+  - COS_PERSISTENT"
+  luksHotfix="
+  before-reset:
+    - name: \"reset persistent\"
+      commands:
+      - |
+        #!/bin/bash
+        udevadm trigger --subsystem-match=block
+        udevadm trigger --type=all || udevadm trigger
+        udevadm settle
+        if [ -e /dev/disk/by-label/COS_PERSISTENT ]; then
+          echo \"Persistent partition found\"
+        else
+          echo \"Persistent partition not found\"
+          exit 0
+        fi  
+        # umount persistent partition
+        umount /dev/disk/by-label/COS_PERSISTENT || true  
+        # format persistent partition
+        mkfs.ext4 /dev/disk/by-label/COS_PERSISTENT -L COS_PERSISTENT
+reset:
+  reset-persistent: false
+"
 fi
+
+
+
 
 stylusPackage=""
 read -p "Lock Stylus to Build Version? (y/n): " styluslock
@@ -243,7 +269,9 @@ stages:
           groups:
             - sudo
           passwd: kairos
-      name: Create user and assign to sudo group"
+      name: Create user and assign to sudo group
+${luksHotfix}
+"
 
 echo -e "User data for build: \n" 
 echo "$user_data" > user-data

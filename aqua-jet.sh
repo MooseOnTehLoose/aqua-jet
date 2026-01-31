@@ -38,15 +38,7 @@ echo -e "${lb}
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠈⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡠⠀⠐⡁
 Aqua-Jet ${version}${nc}"
 
-###############################################################################
-# Setup
-###############################################################################
-
-#Detect if Aqua-Jet is out of Date
 remoteversion=$(curl -s https://api.github.com/repos/mooseontehloose/aqua-jet/tags |  jq -r '.[0].name')
-
-#if [[ "$remoteversion" < "$version" ]]; then
-
 if [[ $(echo -e "${version}\n${remoteversion}"|sort -V|head -1) != "${remoteversion}" ]]; then
   echo -e "Aqua-Jet is out of date! latest version is ${remoteversion}
 
@@ -241,16 +233,12 @@ if [[ "$managementMode" == "connected" ]]; then
     paletteendpoint="api.spectrocloud.com"
   fi
 
-stylusSite="site:
+  stylusSite="site:
     paletteEndpoint: ${paletteendpoint}
-    edgeHostToken: ${edgehosttoken}
-"
+    edgeHostToken: ${edgehosttoken}"
 
 elif [[ "$managementMode" == "local" ]]; then
-
-stylusSite="site:
-    managementMode: local
-"
+  stylusSite="managementMode: local"
 
 else
   echo -e "Invalid Option, Exiting"
@@ -297,23 +285,24 @@ if [[ "$textui" == "y" ]]; then
   tui="true"
 fi
 
+
+user="kairos"
+password="kairos"
+
 user_data="#cloud-config
 stylus:
   ${stylusSite}
   includeTui: ${tui}
-
 install:
   poweroff: true
-${encryptionEnabled}
-  
-
+${encryptionEnabled}  
 stages:
   initramfs:
     - users:
-        kairos:
+        ${user}:
           groups:
             - sudo
-          passwd: kairos
+          passwd: ${password}
       name: Create user and assign to sudo group
 ${luksHotfix}
 "
@@ -329,6 +318,7 @@ if [[ "$modifyuserdata" == "y" ]]; then
 fi
 
 clear
+
 echo -e "${lb}Earthly: Build ISO${nc}"
 
 # Prompt for ISO Build
@@ -338,12 +328,11 @@ printf "\n"
 # Check the response
 if [[ "$buildiso" == "y" ]]; then
   ./earthly.sh +iso
+  printf "\n"
 else
   echo -e "Build ISO with ${lb}./earthly.sh +iso${nc}\n"
 fi
 
-
-clear
 echo -e "${lb}Earthly: Build Provider Image${nc}"
 
 byos_template='pack:
@@ -399,8 +388,10 @@ clear
 
 # Check the response
 if [[ "$confirm" == "y" ]]; then
+  mkdir local-ui
+  cd local-ui
   #figure out clean way to get the latest version, hardcoded for now
-  wget -O https://software.spectrocloud.com/stylus/v4.8.8/cli/linux/palette-edge
+  wget -O "palette-edge" "https://software.spectrocloud.com/stylus/v4.8.8/cli/linux/palette-edge"
   chmod a+x ./palette-edge
 
   #API Key
@@ -424,7 +415,8 @@ if [[ "$confirm" == "y" ]]; then
    --cluster-profile-ids $profileuid \
    --cluster-definition-profile-ids $profileuid \
    --palette-endpoint $apiendpoint \
-   --cluster-definition-name $custom_tag \
+   --cluster-definition-name ${custom_tag}-cluster-definition \
    --outfile "${custom_tag}-content-bundle" \
    --include-palette-content
+
 fi

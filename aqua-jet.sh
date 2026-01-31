@@ -36,14 +36,28 @@ echo -e "${lb}
 ⠀⠀⠀⠀⡠⠔⠂⠽⠿⣿⣿⣗⠂⠀⢹⣦⠄⠀⠐⠀⠀⠀⠀⢀⣤⠶⠓⠐⢚⣍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠐⠞⠠⢦⣶⣴⣾⣿⣿⣤⣴⣶⣤⠿⠛⠛⠛⠚⠛⠛⢛⣿⣷⣶⣿⣿⣶⣼⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠈⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠛⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡠⠀⠐⡁
-Aqua Jet ${version}${nc}"
+Aqua-Jet ${version}${nc}"
 
 ###############################################################################
 # Setup
 ###############################################################################
 
-#TODO
 #Detect if Aqua-Jet is out of Date
+remoteversion=$(curl -s https://api.github.com/repos/mooseontehloose/aqua-jet/tags |  jq -r '.[0].name')
+
+#if [[ "$remoteversion" < "$version" ]]; then
+
+if [[ $(echo -e "${version}\n${remoteversion}"|sort -V|head -1) != "${remoteversion}" ]]; then
+  echo -e "Aqua-Jet is out of date! latest version is ${remoteversion}
+
+  git clone https://github.com/MooseOnTehLoose/aqua-jet
+  cd aqua-jet
+  git tag
+  git checkout <latest>
+  "
+  exit
+fi
+
 
 echo -e "\e]8;;https://github.com/MooseOnTehLoose/aqua-jet\e\\https://github.com/MooseOnTehLoose/aqua-jet\e]8;;\e\\"
 printf "\n"

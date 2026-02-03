@@ -285,6 +285,16 @@ if [[ "$textui" == "y" ]]; then
   tui="true"
 fi
 
+beforeInstall=""
+read -p "Wipe FS during Install? (y\n): " wipefs
+if [[ "$wipefs" == "y" ]]; then
+  beforeInstall="  before-install:
+    - name: \"Erase Old Partitions on Boot Disk\"
+      commands:
+        - wipefs -a /dev/nvme0n1
+        - wipefs -a /dev/nvme1n1"
+fi
+
 
 user="kairos"
 password="kairos"
@@ -297,6 +307,7 @@ install:
   poweroff: true
 ${encryptionEnabled}  
 stages:
+${beforeInstall}
   initramfs:
     - users:
         ${user}:
@@ -380,43 +391,49 @@ else
   echo -e "Push Provider Image with:\n  ${lb}docker push ${image_registry}/${os}:${k8s_distribution}-${k8s_version}-${canvos}-${custom_tag}${nc}\n"
 fi
 
-# Prompt for Content Build
-read -p "Ready to build Content Bundle? (y/n) " confirm
-printf "\n"
 
-clear
+if [[ "$managementMode" == "local" ]]; then
+  read -p "Ready to build Content Bundle? (y/n) " confirm
+  printf "\n"
 
-# Check the response
-if [[ "$confirm" == "y" ]]; then
-  mkdir local-ui
-  cd local-ui
-  #figure out clean way to get the latest version, hardcoded for now
-  wget -O "palette-edge" "https://software.spectrocloud.com/stylus/v4.8.8/cli/linux/palette-edge"
-  chmod a+x ./palette-edge
+  clear
+  if [[ "$confirm" == "y" ]]; then
+    mkdir local-ui
+    cd local-ui
+    #figure out clean way to get the latest version, hardcoded for now
+    wget -O "palette-edge" "https://software.spectrocloud.com/stylus/v4.8.8/cli/linux/palette-edge"
+    chmod a+x ./palette-edge
 
-  #API Key
-  read -p "Palette API Key: " apikey
-  
-  #Split out the API Endpoint, Project UID and Profile UID
-  read -p "Profile URL: " url
+    #API Key
+    read -p "Palette API Key: " apikey
 
-  if [[ "$url" =~ ^(https?://.[^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ ]]; then
-      apiendpoint="${BASH_REMATCH[1]}"
-      projectuid="${BASH_REMATCH[3]}"
-      profileuid="${BASH_REMATCH[6]}"
-      echo -e "API Endpoint: ${apiendpoint}"
-      echo -e "Project UID: ${projectuid}"
-      echo -e "Profile UID: ${profileuid}"
+    #Split out the API Endpoint, Project UID and Profile UID
+    read -p "Profile URL: " url
+
+    if [[ "$url" =~ ^(https?://.[^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ ]]; then
+        apiendpoint="${BASH_REMATCH[1]}"
+        projectuid="${BASH_REMATCH[3]}"
+        profileuid="${BASH_REMATCH[6]}"
+        echo -e "API Endpoint: ${apiendpoint}"
+        echo -e "Project UID: ${projectuid}"
+        echo -e "Profile UID: ${profileuid}"
+
+    fi
+
+    ./palette-edge build --api-key $apikey \
+     --project-id $projectuid \
+     --cluster-profile-ids $profileuid \
+     --cluster-definition-profile-ids $profileuid \
+     --palette-endpoint $apiendpoint \
+     --cluster-definition-name ${custom_tag}-cluster-definition \
+     --outfile "${custom_tag}-content-bundle" \
+     --include-palette-content
+
+     clear
+     echo -e "Content Available at ../CanvOS/local-ui/
+  Push the content bundle via the following command:
+
+  ./palette-edge upload -f content-f41fbd4c/core-f41fbd4c.zst --token 123456 10.10.X.X"
 
   fi
-
-  ./palette-edge build --api-key $apikey \
-   --project-id $projectuid \
-   --cluster-profile-ids $profileuid \
-   --cluster-definition-profile-ids $profileuid \
-   --palette-endpoint $apiendpoint \
-   --cluster-definition-name ${custom_tag}-cluster-definition \
-   --outfile "${custom_tag}-content-bundle" \
-   --include-palette-content
-
 fi

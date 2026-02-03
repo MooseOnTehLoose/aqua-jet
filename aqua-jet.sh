@@ -1,6 +1,6 @@
 #! /bin/bash
 
-version="v0.0.9"
+version="v0.0.10"
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
 clear

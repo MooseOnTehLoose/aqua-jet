@@ -1,6 +1,6 @@
 #! /bin/bash
 
-version="v0.0.10"
+version="v0.0.11"
 lb='\033[0;94m' # Blue - High Intensity
 nc='\033[0m'    # No Color - resets to default
 clear
@@ -132,10 +132,10 @@ fi
 
 echo -e "Possible versions for ${lb}$k8s_distribution${nc}:\n"
 
-json=$(jq -c ".${k8s_distribution}[]"  ./k8s_version.json)
+json=$(jq -c --arg k8 "$k8s_distribution" '.[$k8]' ./k8s_version.json)
 json_without_quotes=$(echo ${json//\"/""})
 
-latest=$(jq -c ".${k8s_distribution} | last"  ./k8s_version.json )
+latest=$(jq -c --arg k8 "$k8s_distribution" '.[$k8]'[-1] ./k8s_version.json)
 latest_k8s=$(echo ${latest//\"/""})
 k8s_array=($json_without_quotes)
 
